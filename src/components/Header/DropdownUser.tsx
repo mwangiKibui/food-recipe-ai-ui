@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import {useRouter} from 'next/navigation';
+import {LogoutAPIResponse} from "../../types/auth";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
+  const router = useRouter();
 
   // close on click outside
   useEffect(() => {
@@ -33,6 +36,22 @@ const DropdownUser = () => {
     document.addEventListener("keydown", keyHandler);
     return () => document.removeEventListener("keydown", keyHandler);
   });
+
+  const handleLogOut = async () => {
+      // send a request to the api to log out the user.
+      let apiResponse = await fetch("/api/auth/logout",{
+        method:"POST"
+      });
+      let result:LogoutAPIResponse = await apiResponse.json();
+      // redirect the user to login if successful.
+      if(result.success){
+        setTimeout( () => {
+            router.push("/auth/signin");
+        },100);
+      }else{
+        // do not redirect.... 
+      }
+  }
 
   return (
     <div className="relative">
@@ -161,7 +180,7 @@ const DropdownUser = () => {
             </Link>
           </li>
         </ul>
-        <button className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
+        <button className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base" onClick={handleLogOut}>
           <svg
             className="fill-current"
             width="22"
